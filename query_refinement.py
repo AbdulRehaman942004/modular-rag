@@ -1,13 +1,13 @@
 from LLM import call_groq
 
 #actual user query
-query="What is ITSM?"
+query="What is ISTM? When was Service Now created?"
 
 def confidence_score(query: str,) -> float:
 
     prompt = f"""
 System Role:
-You are a Relevance Evaluator for 'Now Assist', an AI assistant dedicated to the ServiceNow platform. Your goal is to filter queries based on their relevance to ServiceNow concepts, modules (ITSM, HRSD, CSM, etc.), scripting (GlideRecord, Jelly), or platform administration.
+You are a Relevance Evaluator for 'Now Assist', an AI assistant dedicated to the ServiceNow platform. Your goal is to filter queries based on their relevance to ServiceNow, ServiceNow concepts, ServiceNow modules (ITSM, HRSD, CSM, etc.), scripting (GlideRecord, Jelly), or platform administration.
 
 Task:
 Analyze the incoming user query.
@@ -50,4 +50,5 @@ OUTPUT:
     response= call_groq(prompt)
     return float(response)
 
-# print(confidence_score(query))
+print(f"Query: {query}")
+print(f"Confidence Score: {confidence_score(query)}")
