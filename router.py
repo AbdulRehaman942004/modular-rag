@@ -52,15 +52,16 @@ RESPONSE:
 
 """
 
-    response = call_groq(prompt)
-    response=[response] #converting it into a list
+    tools = call_groq(prompt)
+    tools=[tools] #converting it into a list
 
     def split_string_to_array(input_string):
         result_array = re.split(r'\s*,\s*', input_string.strip())
         return result_array
 
-    if(',' in response):
-        response=split_string_to_array(response)
+    if(',' in tools):
+        tools=split_string_to_array(tools)
 
-    print(response)
+    # print(tools)
+
 
