@@ -1,9 +1,13 @@
 from LLM import call_groq
+from query_refinement import query, confidence_score
 import re
 
-query = "Why do we use LSTM? and also tell, when the service now was released?"
+if(confidence_score(query)<0.70):    
+    print("The question is not relevant to Service NOW, come again with a relvant question." )
+    
 
-prompt = f"""
+else:
+    prompt = f"""
 System Role
 You are the Router for "Now Assist," an AI assistant for the ServiceNow platform. Your sole responsibility is to analyze the incoming user QUERY and determine the correct tool(s) required to fulfill the request.
 
@@ -47,14 +51,16 @@ QUERY: {query}
 RESPONSE:
 
 """
-response = call_groq(query, prompt)
-response=[response] #converting it into a list
 
-def split_string_to_array(input_string):
-    result_array = re.split(r'\s*,\s*', input_string.strip())
-    return result_array
+    response = call_groq(prompt)
+    response=[response] #converting it into a list
 
-if(',' in response):
-    response=split_string_to_array(response)
+    def split_string_to_array(input_string):
+        result_array = re.split(r'\s*,\s*', input_string.strip())
+        return result_array
 
-#print(response)
+    if(',' in response):
+        response=split_string_to_array(response)
+
+    print(response)
+

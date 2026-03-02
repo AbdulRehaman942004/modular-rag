@@ -8,10 +8,10 @@ client = OpenAI(
     base_url="https://api.groq.com/openai/v1",
 )
 
-def call_groq(query:str ,prompt:str):
+def call_groq(prompt:str):
     response = client.responses.create(
         input= prompt,
-        model="openai/gpt-oss-20b",
+        model="openai/gpt-oss-120b",
     )
     return response.output_text
 
