@@ -1,7 +1,7 @@
 from LLM import call_groq
 
 #actual user query
-query="What is ISTM? When was Service Now created?"
+query="What is ITSM?"
 
 def confidence_score(query: str,) -> float:
 

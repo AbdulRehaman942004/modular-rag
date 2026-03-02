@@ -52,4 +52,3 @@ Use when: The query asks for specific technical use cases, code debugging, scrip
     response=re.split(r'\s*,\s*', response.strip())
     return response
 
-print(f"Query after decomposition: {query_decomposer(query,tools)}")

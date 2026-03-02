@@ -13,12 +13,14 @@ def orchestrate_query(query:str, tools:list[str]):
             llm_response()
         elif tools[0]=="vector_db":
             context = vector_db()
-        elif tools[0]=="web search":
+        elif tools[0]=="web_search":
             context = web_search()
 
     elif(len(tools)>1):
       query=query_decomposer(query, tools) 
-     
+      print(f"Query after decomposition: {query_decomposer(query,tools)}")
+
+    print(context)
 
 #     prompt = f""""
 # CONTEXT:{context}
@@ -33,7 +35,6 @@ def orchestrate_query(query:str, tools:list[str]):
 #     response=call_groq(prompt)
 #     return response
 
-query_decomposer(query,tools)
-
+orchestrate_query(query,tools)
 
 
