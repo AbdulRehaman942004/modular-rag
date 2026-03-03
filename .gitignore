@@ -2,7 +2,8 @@ venv/
 .env
 __pycache__/
 *.pyc
-chromadb_data/
-pdfs/chunks.json
-pdfs/*.pdf
+
+# Ignore all uploaded PDFs but keep the directory
+pdfs/*
+!pdfs/.gitkeep
 *.pdf

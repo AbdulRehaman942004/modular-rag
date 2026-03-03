@@ -236,10 +236,10 @@ def ingest_pdfs(pdf_files) -> dict:
         json.dump(chunks, f, ensure_ascii=False)
 
     # Ingest
-    ingest_chunks(chunks, reset=True)
+    ingest_chunks(chunks, reset=False)
 
     return {
         "success": True,
         "chunks": len(chunks),
-        "message": f"✅ Ingested {len(chunks):,} chunks from {len(saved)} PDF(s).",
+        "message": f"✅ Added {len(chunks):,} chunks to the knowledge base from {len(saved)} PDF(s).",
     }
