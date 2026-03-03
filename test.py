@@ -1,3 +1,5 @@
-tools = ['vector_db', 'web search']
+context=["hi","yay","by"]
 
-print(tools)
+context="\n\n".join(context)
+
+print(context)

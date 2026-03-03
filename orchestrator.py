@@ -9,16 +9,30 @@ def orchestrate_query(query:str, tools:list[str]):
     if(len(tools)==1):    
 
         if tools[0]=="llm_response":
-            context= llm_response()
+            context= llm_response(query)
         elif tools[0]=="vector_db":
-            context = vector_db()
+            context = vector_db(query)
         elif tools[0]=="web_search":
-            context = web_search()
+            context = web_search(query)
 
     elif(len(tools)>1):
-      query=query_decomposer(query, tools) 
-      print(f"Query after decomposition: {query_decomposer(query,tools)}")
+        query=query_decomposer(query, tools) 
 
+        print(f"Query after decomposition: {query_decomposer(query,tools)}")
+
+        for i in range(len(query)):
+
+            if tools[i]=="llm_response":
+                context[i]= llm_response(query[i])
+            elif tools[i]=="vector_db":
+                context[i] = vector_db(query[i])
+            elif tools[i]=="web_search":
+                context[i] = web_search(query[i])
+
+        for i in range(len(query)):
+
+            context="\n\n".join(context)
+            
 
 #     prompt = f""""
 # CONTEXT:{context}

@@ -1,3 +1,3 @@
 
-def vector_db():
+def vector_db(query:str):
     print("vector_db ok")
