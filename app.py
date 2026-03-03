@@ -414,7 +414,7 @@ if st.session_state.messages and st.session_state.messages[-1]["role"] == "user"
             )
 
         with st.spinner(""):
-            result = run_query(query, chat_history=chat_history, status_cb=status_cb)
+            result = run_query(query, chat_history=chat_history, n_results=st.session_state.n_results, status_cb=status_cb)
 
         status_text.empty()
 

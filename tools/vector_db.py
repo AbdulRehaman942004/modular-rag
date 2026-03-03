@@ -18,10 +18,9 @@ if _COMPONENTS_DIR not in sys.path:
 from generation import run_rag_query  # noqa: E402
 
 COLLECTION_NAME = "servicenow_knowledge_base"
-N_RESULTS = 10  # number of chunks to retrieve per query
 
 
-def vector_db(query: str) -> str:
+def vector_db(query: str, n_results: int = 10) -> str:
     """Retrieve relevant context from ChromaDB and return a grounded answer.
 
     The ChromaDB collection must already be populated by running
@@ -39,7 +38,7 @@ def vector_db(query: str) -> str:
         answer, context_chunks = run_rag_query(
             user_query=query,
             collection_name=COLLECTION_NAME,
-            n_results=N_RESULTS,
+            n_results=n_results,
         )
         print(f"[vector_db] Retrieved {len(context_chunks)} context chunk(s).")
         return answer

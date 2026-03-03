@@ -83,7 +83,7 @@ def _route(query: str) -> list[str]:
     return re.split(r'\s*,\s*', raw)
 
 
-def _run_tool(tool_name: str, q: str, status_cb=None) -> str:
+def _run_tool(tool_name: str, q: str, n_results: int = 10, status_cb=None) -> str:
     """Run a tool with fallback to llm_response on failure."""
     if status_cb:
         status_cb(tool_name)
@@ -91,7 +91,7 @@ def _run_tool(tool_name: str, q: str, status_cb=None) -> str:
         if tool_name == "llm_response":
             result = llm_response(q)
         elif tool_name == "vector_db":
-            result = vector_db(q)
+            result = vector_db(q, n_results=n_results)
         elif tool_name == "web_search":
             result = web_search(q)
         else:
@@ -114,7 +114,7 @@ def _run_tool(tool_name: str, q: str, status_cb=None) -> str:
 
 # ── Public API ────────────────────────────────────────────────────────────────
 
-def run_query(query: str, chat_history: list = None, status_cb=None) -> dict:
+def run_query(query: str, chat_history: list = None, n_results: int = 10, status_cb=None) -> dict:
     """Run the full RAG pipeline and return a structured result.
 
     Args:
@@ -152,12 +152,12 @@ def run_query(query: str, chat_history: list = None, status_cb=None) -> dict:
     # Step 3 — decompose (if multi-tool) and run
     if len(tools) == 1:
         sub_queries = [query]
-        context = _run_tool(tools[0], query, status_cb)
+        context = _run_tool(tools[0], query, n_results, status_cb)
     else:
         sub_queries = query_decomposer(query, tools)
         # Guard length mismatch
         pairs = list(zip(tools, sub_queries))
-        contexts = [_run_tool(tool, sq, status_cb) for tool, sq in pairs]
+        contexts = [_run_tool(tool, sq, n_results, status_cb) for tool, sq in pairs]
         context = "\n\n".join(contexts)
         sub_queries = [sq for _, sq in pairs]
         tools = [t for t, _ in pairs]
