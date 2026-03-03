@@ -1,32 +1,67 @@
 from router import query, tools
-from tools.llm_response import llm_response 
+from tools.llm_response import llm_response
 from tools.vector_db import vector_db
 from tools.web_search import web_search
 from LLM import call_groq
 from query_decomposer import query_decomposer
 
-def orchestrate_query(query: str, tools: list[str]):
+
+def _run_tool(tool_name: str, q: str) -> str:
+    """Run a single tool and return its output.
+    Falls back to llm_response if the tool raises an error or returns empty.
+    Non-ServiceNow queries are already rejected upstream by router.py.
+    """
+    try:
+        if tool_name == "llm_response":
+            result = llm_response(q)
+        elif tool_name == "vector_db":
+            result = vector_db(q)
+        elif tool_name == "web_search":
+            result = web_search(q)
+        else:
+            result = ""
+
+        # Treat empty / error-like results as failures
+        if not result or result.strip().startswith("["):
+            raise ValueError(f"Tool '{tool_name}' returned an unusable result.")
+
+        return result
+
+    except Exception as e:
+        print(f"[orchestrator] '{tool_name}' failed ({e}). Falling back to llm_response...")
+        try:
+            fallback = llm_response(q)
+            if fallback:
+                return fallback
+        except Exception as fe:
+            print(f"[orchestrator] llm_response fallback also failed: {fe}")
+
+        return (
+            "I was unable to retrieve information for this query at the moment. "
+            "Please try again shortly."
+        )
+
+
+def orchestrate_query(query: str, tools: list[str]) -> str:
     context = ""
 
+    if not tools:
+        print("[orchestrator] No tools selected — query was likely off-topic.")
+        return "Your question does not appear to be related to ServiceNow. Please ask a ServiceNow-related question."
+
     if len(tools) == 1:
-        if tools[0] == "llm_response":
-            context = llm_response(query)
-        elif tools[0] == "vector_db":
-            context = vector_db(query)
-        elif tools[0] == "web_search":
-            context = web_search(query)
+        context = _run_tool(tools[0], query)
 
     elif len(tools) > 1:
         sub_queries = query_decomposer(query, tools)
-        sub_contexts = []
 
-        for i in range(len(sub_queries)):
-            if tools[i] == "llm_response":
-                sub_contexts.append(llm_response(sub_queries[i]))
-            elif tools[i] == "vector_db":
-                sub_contexts.append(vector_db(sub_queries[i]))
-            elif tools[i] == "web_search":
-                sub_contexts.append(web_search(sub_queries[i]))
+        # Guard: zip ensures we never go out of bounds if counts differ
+        if len(sub_queries) != len(tools):
+            print(f"[orchestrator] Warning: decomposer returned {len(sub_queries)} sub-queries for {len(tools)} tools. Zipping to shortest.")
+
+        sub_contexts = []
+        for tool, sub_q in zip(tools, sub_queries):
+            sub_contexts.append(_run_tool(tool, sub_q))
 
         context = "\n\n".join(sub_contexts)
 

@@ -1,5 +1,8 @@
 venv/
 .env
 __pycache__/
-
-
+*.pyc
+chromadb_data/
+pdfs/chunks.json
+pdfs/*.pdf
+*.pdf

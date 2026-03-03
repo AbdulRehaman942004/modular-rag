@@ -1,8 +1,13 @@
-from router import query, tools
 from LLM import call_groq
 import re
 
-def query_decomposer(query:str, tools:list[str]) -> str:
+
+def query_decomposer(query: str, tools: list[str]) -> list[str]:
+    """Break a complex query into one sub-query per tool.
+
+    Uses ||| as a delimiter (instead of comma) so sub-queries that naturally
+    contain commas are not accidentally split.
+    """
 
     prompt = f"""
 ### System Role
@@ -28,27 +33,25 @@ Use when: The query asks for specific technical use cases, code debugging, scrip
 **Assigned Tools:** {tools}
 
 ### Output Rules
-* **Format:** Output the sub-queries separated strictly by a comma `,`.
-* **Constraint:** The first part of your response must correspond to the first tool, the second part to the second tool, and so on.
-* **Content:** Do not add introductory text. Only output the separated questions. If one or more questions concides with a specific tool, merge all these question and consider that one query.
+* **Format:** Output the sub-queries separated strictly by `|||` (three pipe characters). Do NOT use commas as separators.
+* **Constraint:** The first part must correspond to the first tool, the second part to the second tool, and so on.
+* **Content:** Do not add introductory text. Only output the separated sub-queries.
 
 ### Examples
 **Example 1**
 * Query: "What is ITSM and what is the current stock price of ServiceNow?"
 * Tools: ['vector_db', 'web_search']
-* Response: What is ITSM?,What is the current stock price of ServiceNow?
+* Response: What is ITSM?|||What is the current stock price of ServiceNow?
 
 **Example 2**
 * Query: "Fix this script error and tell me who is the CEO."
 * Tools: ['llm_response', 'web_search']
-* Response: Fix this script error.,Who is the CEO of ServiceNow?
+* Response: Fix this script error.|||Who is the CEO of ServiceNow?
 
 ### YOUR RESPONSE:
 
     """
 
-    response=call_groq(prompt)
-
-    response=re.split(r'\s*,\s*', response.strip())
-    return response
-
+    response = call_groq(prompt)
+    sub_queries = [q.strip() for q in response.strip().split("|||")]
+    return sub_queries

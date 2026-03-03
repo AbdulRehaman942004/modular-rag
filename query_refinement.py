@@ -1,9 +1,11 @@
 from LLM import call_groq
 
-#actual user query
-query="What is ITSM? and tell me if this code is syntactically correct: var gr = new GlideRecord('incident'); gr.query(); Also tell me who is the founder of service now?"
+# Actual user query — change this to test different inputs
+query = "What is ITSM? and tell me if this code is syntactically correct: var gr = new GlideRecord('incident'); gr.query(); Also tell me who is the founder of service now?"
 
-def confidence_score(query: str,) -> float:
+
+def confidence_score(query: str) -> float:
+    """Return a 0.0–1.0 score indicating how relevant the query is to ServiceNow."""
 
     prompt = f"""
 System Role:
@@ -47,8 +49,16 @@ USER INPUT: {query}
 OUTPUT:
 
 """
-    response= call_groq(prompt)
-    return float(response)
+    response = call_groq(prompt)
 
-print(f"Query: {query}")
-print(f"Confidence Score: {confidence_score(query)}")
+    # Guard: if the LLM returns something non-numeric, default to 0.0 (reject)
+    try:
+        return float(response.strip())
+    except ValueError:
+        print(f"[confidence_score] Warning: could not parse score '{response}', defaulting to 0.0")
+        return 0.0
+
+
+if __name__ == "__main__":
+    print(f"Query: {query}")
+    print(f"Confidence Score: {confidence_score(query)}")

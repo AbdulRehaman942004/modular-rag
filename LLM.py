@@ -1,6 +1,7 @@
 from openai import OpenAI
 import os
 from dotenv import load_dotenv
+
 load_dotenv()
 
 client = OpenAI(
@@ -8,23 +9,10 @@ client = OpenAI(
     base_url="https://api.groq.com/openai/v1",
 )
 
-def call_groq(prompt:str):
-    response = client.responses.create(
-        input= prompt,
+def call_groq(prompt: str) -> str:
+    """Call the Groq LLM via the OpenAI-compatible Chat Completions API."""
+    response = client.chat.completions.create(
         model="llama-3.3-70b-versatile",
+        messages=[{"role": "user", "content": prompt}],
     )
-    return response.output_text
-
-
-# query = "What is the capital of France?"
-
-# prompt = f"""
-# CONTEXT:
-# You are a helpful assistant that can answer questions and help with tasks.
-
-# QUERY: {query}
-
-# INSTRUCTIONS: You must answer the query in just one word under any circumstances.
-# """
-
-# print(call_groq(query, prompt))
+    return response.choices[0].message.content or ""

@@ -21,11 +21,14 @@ CHROMADB_PATH = os.path.join(os.path.dirname(__file__), "..", "..", "chromadb_da
 # Default collection name
 DEFAULT_COLLECTION = "servicenow_knowledge_base"
 
+# Module-level singleton client — created once, reused on every query
+_chroma_client = chromadb.PersistentClient(path=CHROMADB_PATH)
+
 
 def _get_collection(collection_name: str) -> chromadb.Collection:
-    """Retrieve an existing ChromaDB collection."""
-    client = chromadb.PersistentClient(path=CHROMADB_PATH)
-    return client.get_collection(name=collection_name)
+    """Retrieve an existing ChromaDB collection using the shared client."""
+    return _chroma_client.get_collection(name=collection_name)
+
 
 
 def retrieve_context(

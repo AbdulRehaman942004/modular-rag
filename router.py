@@ -2,9 +2,12 @@ from LLM import call_groq
 from query_refinement import query, confidence_score
 import re
 
-if(confidence_score(query)<0.60):    
-    print("The question is not relevant to Service NOW, come again with a relvant question." )
-    
+# Default — overwritten below if confidence passes
+tools = []
+
+if confidence_score(query) < 0.60:
+    print("The question is not relevant to ServiceNow. Please ask a ServiceNow-related question.")
+
 else:
     prompt = f"""
 System Role
@@ -50,8 +53,6 @@ RESPONSE:
 """
 
     tools = call_groq(prompt)
-    tools=re.split(r'\s*,\s*', tools.strip())
-   
+    tools = re.split(r'\s*,\s*', tools.strip())
+
     print(f"Tools that are going to be used in this query: {tools}")
-
-
