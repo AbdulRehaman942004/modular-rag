@@ -64,8 +64,8 @@ INFORMATION GATHERED:
 INSTRUCTIONS:
 - You must answer the user's latest query factually and confidently, taking into account the conversation history.
 - Use the INFORMATION GATHERED above to form your answer, but ACT AS IF you already knew this information. 
-- Synthesize the details into a clear, unified, and professional response.
-- Use bullet points or numbered lists where helpful.
+- Synthesize the details into a highly detailed, comprehensive, and professional response.
+- Use headings, bullet points, numbered lists, and bold text extensively to organize the information and provide a structured output.
 - If the INFORMATION GATHERED is insufficient to answer the query, say so clearly (e.g., "I don't have enough information to answer that.").
 - Do NOT hallucinate.
 

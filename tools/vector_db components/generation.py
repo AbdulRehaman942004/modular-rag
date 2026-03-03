@@ -83,7 +83,8 @@ USER QUESTION:
 
 INSTRUCTIONS:
 - Base your answer strictly on the INFORMATION GATHERED provided.
-- Be clear, concise, and directly address the question.
+- Be clear, highly detailed, comprehensively structured, and directly address the question.
+- Use headings, bullet points, numbered lists, and bold text extensively to organize the information and provide a structured output.
 - Do not include information not present in the INFORMATION GATHERED.
 - CRITICAL: Do NOT mention "context", "search results", or "the provided information" in your answer. Present the information directly and confidently as your own knowledge.
 

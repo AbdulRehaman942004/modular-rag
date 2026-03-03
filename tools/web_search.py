@@ -111,8 +111,8 @@ INFORMATION GATHERED:
 
 INSTRUCTIONS:
 - Answer the query using ONLY the INFORMATION GATHERED above.
-- Be concise, factual, and well-structured.
-- Use bullet points or numbered lists where appropriate.
+- Be highly detailed, factual, and comprehensively structured.
+- Use headings, bullet points, numbered lists, and bold text extensively to organize the information and provide a structured output.
 - If the available information does not contain enough details to answer, say so clearly (e.g. "I don't have enough information to answer that.").
 - Do NOT hallucinate or add facts not present in the information.
 - CRITICAL: Do NOT mention "search results", "sources", or "provided context" in your answer. Present the information directly and confidently as your own knowledge.
