@@ -44,7 +44,7 @@ learning materials for basic and advanced ServiceNow understanding.
 
 llm_response:
 Use when: The query asks for specific technical use cases, code debugging, script
-generation, or logical reasoning.
+generation, logical reasoning, OR when the user is simply greeting the assistant (e.g., "Hello", "Who are you?").
 
 Output Rules
 - Respond with ONLY tool names from: web_search, vector_db, llm_response

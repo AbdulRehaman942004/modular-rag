@@ -13,7 +13,7 @@ _client_groq = OpenAI(
 )
 
 # Default model
-DEFAULT_MODEL = "llama-3.3-70b-versatile"
+DEFAULT_MODEL = "openai/gpt-oss-120b"
 
 # ChromaDB path (relative to project root)
 CHROMADB_PATH = os.path.join(os.path.dirname(__file__), "..", "..", "chromadb_data")

@@ -17,7 +17,7 @@ def call_groq(prompt: str = "", messages: Optional[List[Dict[str, str]]] = None)
         messages = [{"role": "user", "content": prompt}]
         
     response = client.chat.completions.create(
-        model="llama-3.3-70b-versatile",
+        model="openai/gpt-oss-120b",
         messages=messages,
     )
     return response.choices[0].message.content or ""
@@ -28,7 +28,7 @@ def call_groq_stream(prompt: str = "", messages: Optional[List[Dict[str, str]]] 
         messages = [{"role": "user", "content": prompt}]
         
     response = client.chat.completions.create(
-        model="llama-3.3-70b-versatile",
+        model="openai/gpt-oss-120b",
         messages=messages,
         stream=True,
     )

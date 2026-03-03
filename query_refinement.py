@@ -20,7 +20,7 @@ Assign a confidence score between 0.0 and 1.0:
 
 0.0 = Completely unrelated (e.g., cooking, general world history, celebrities).
 
-1.0 = Highly specific and technical ServiceNow query (e.g., "Business Rules," "GlideSystem," "ACLs") OR conversational/small-talk queries that explicitly mention or ask about ServiceNow.
+1.0 = Highly specific and technical ServiceNow query (e.g., "Business Rules," "GlideSystem," "ACLs"), conversational/small-talk queries that explicitly mention ServiceNow, OR standard AI Assistant greetings (e.g., "Hello", "Hi", "Who are you?", "How are you?").
 
 Output ONLY the decimal number.
 
@@ -31,9 +31,11 @@ No Text: Do not include words like "Score:", "Confidence:", or explanations.
 
 No Markdown: Do not use bolding or code blocks in the output.
 
-Examples:
 Input: "How do I write a GlideRecord query to fetch active incidents?"
 Output: 0.99
+
+Input: "Hello there, who are you?"
+Output: 1.0
 
 Input: "What is the best pizza recipe?"
 Output: 0.01
