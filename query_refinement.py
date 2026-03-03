@@ -1,7 +1,7 @@
 from LLM import call_groq
 
 #actual user query
-query="What is ITSM? and when was it created in service now? Also tell me the main concepts of ITSM."
+query="What is ITSM? and tell me if this code is syntactically correct: var gr = new GlideRecord('incident'); gr.query(); Also tell me who is the founder of service now?"
 
 def confidence_score(query: str,) -> float:
 
