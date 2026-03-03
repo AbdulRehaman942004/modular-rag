@@ -84,6 +84,9 @@ USER QUESTION:
 INSTRUCTIONS:
 - Base your answer strictly on the INFORMATION GATHERED provided.
 - Be clear, highly detailed, comprehensively structured, and directly address the question.
+- CRITICAL: Output your answer directly in standard Markdown.
+- You must leave a blank empty line after every heading before starting a paragraph.
+- Do NOT wrap your entire response or headings in quotation marks or bold asterisks (e.g. use `# Heading` NOT `**# Heading**` or `# **Heading**`).
 - Use headings, bullet points, numbered lists, and bold text extensively to organize the information and provide a structured output.
 - Do not include information not present in the INFORMATION GATHERED.
 - CRITICAL: Do NOT mention "context", "search results", or "the provided information" in your answer. Present the information directly and confidently as your own knowledge.

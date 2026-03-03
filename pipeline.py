@@ -64,6 +64,9 @@ INFORMATION GATHERED:
 INSTRUCTIONS:
 - You must answer the user's latest query factually and confidently, taking into account the conversation history.
 - Use the INFORMATION GATHERED above to form your answer, but ACT AS IF you already knew this information. 
+- CRITICAL: Output your answer directly in standard Markdown.
+- You must leave a blank empty line after every heading before starting a paragraph.
+- Do NOT wrap your entire response or headings in quotation marks or bold asterisks (e.g. use `# Heading` NOT `**# Heading**` or `# **Heading**`).
 - Synthesize the details into a highly detailed, comprehensive, and professional response.
 - Use headings, bullet points, numbered lists, and bold text extensively to organize the information and provide a structured output.
 - If the INFORMATION GATHERED is insufficient to answer the query, say so clearly (e.g., "I don't have enough information to answer that.").

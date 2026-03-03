@@ -115,6 +115,9 @@ INSTRUCTIONS:
 - Use headings, bullet points, numbered lists, and bold text extensively to organize the information and provide a structured output.
 - If the available information does not contain enough details to answer, say so clearly (e.g. "I don't have enough information to answer that.").
 - Do NOT hallucinate or add facts not present in the information.
+- CRITICAL: Output your answer directly in standard Markdown.
+- You must leave a blank empty line after every heading before starting a paragraph.
+- Do NOT wrap your entire response or headings in quotation marks or bold asterisks (e.g. use `# Heading` NOT `**# Heading**` or `# **Heading**`).
 - CRITICAL: Do NOT mention "search results", "sources", or "provided context" in your answer. Present the information directly and confidently as your own knowledge.
 
 RESPONSE:"""
