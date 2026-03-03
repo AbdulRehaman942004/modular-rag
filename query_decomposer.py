@@ -9,7 +9,7 @@ def query_decomposer(query:str, tools:list[str]) -> str:
 You are a **Query Decomposer** for 'Now Assist'. You receive a complex User Query and a list of Tools that have already been selected to answer it.
 
 ### Task
-1.  **Analyze** the `User Query` and break it down into distinct sub-queries.
+1.  **Analyze** the `User Query` and break it down into distinct sub-queries according to the tools provided.
 2.  **Map** each sub-query to the specific tool in the `Assigned Tools` list that is best suited to answer it.
 3.  **Order** your output to strictly match the order of the tools provided.
 
@@ -30,7 +30,7 @@ Use when: The query asks for specific technical use cases, code debugging, scrip
 ### Output Rules
 * **Format:** Output the sub-queries separated strictly by a comma `,`.
 * **Constraint:** The first part of your response must correspond to the first tool, the second part to the second tool, and so on.
-* **Content:** Do not add introductory text. Only output the separated questions.
+* **Content:** Do not add introductory text. Only output the separated questions. If one or more questions concides with a specific tool, merge all these question and consider that one query.
 
 ### Examples
 **Example 1**

@@ -5,12 +5,11 @@ from tools.web_search import web_search
 from LLM import call_groq
 from query_decomposer import query_decomposer
 
-
 def orchestrate_query(query:str, tools:list[str]):
     if(len(tools)==1):    
 
         if tools[0]=="llm_response":
-            llm_response()
+            context= llm_response()
         elif tools[0]=="vector_db":
             context = vector_db()
         elif tools[0]=="web_search":
@@ -20,7 +19,6 @@ def orchestrate_query(query:str, tools:list[str]):
       query=query_decomposer(query, tools) 
       print(f"Query after decomposition: {query_decomposer(query,tools)}")
 
-    print(context)
 
 #     prompt = f""""
 # CONTEXT:{context}

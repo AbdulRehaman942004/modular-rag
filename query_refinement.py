@@ -1,7 +1,7 @@
 from LLM import call_groq
 
 #actual user query
-query="What is ITSM?"
+query="What is ITSM? and when was it created in service now? Also tell me the main concepts of ITSM."
 
 def confidence_score(query: str,) -> float:
 
