@@ -84,9 +84,9 @@ if __name__ == "__main__":
         chunks = json.load(f)
 
     print(f"[ingestion] Loaded {len(chunks)} chunks from chunks.json")
-    print("[ingestion] Ingesting into ChromaDB (this replaces any old data)...")
+    print("[ingestion] Ingesting into ChromaDB (appending to existing data)...")
 
-    collection, ids = ingest_chunks(chunks, reset=True)
+    collection, ids = ingest_chunks(chunks, reset=False)
 
     print(f"\n[ingestion] Done! {collection.count()} chunks now in collection '{DEFAULT_COLLECTION}'.")
     print("[ingestion] Your knowledge base is ready. You can now run the main application.")
