@@ -289,16 +289,10 @@ else:
         role = msg["role"]
         if role == "user":
             with st.chat_message("user", avatar=None):
-                st.markdown(
-                    f'<div style="color:#e2e8f0;font-size:0.9rem;line-height:1.6;">{msg["content"]}</div>',
-                    unsafe_allow_html=True,
-                )
+                st.markdown(msg["content"])
         else:
             with st.chat_message("assistant", avatar=None):
-                st.markdown(
-                    f'<div style="color:#e2e8f0;font-size:0.9rem;line-height:1.6;">{msg["content"]}</div>',
-                    unsafe_allow_html=True,
-                )
+                st.markdown(msg["content"])
                 meta = msg.get("meta", {})
                 if meta.get("tools_used"):
                     st.markdown(
@@ -423,10 +417,7 @@ if st.session_state.messages and st.session_state.messages[-1]["role"] == "user"
             final_answer = st.write_stream(result["answer"])
         else:
             final_answer = result["answer"]
-            st.markdown(
-                f'<div style="color:#e2e8f0;font-size:0.9rem;line-height:1.6;">{final_answer}</div>',
-                unsafe_allow_html=True,
-            )
+            st.markdown(final_answer)
 
     st.session_state.messages.append({
         "role": "assistant",
