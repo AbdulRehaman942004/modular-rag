@@ -20,7 +20,7 @@ Assign a confidence score between 0.0 and 1.0:
 
 0.0 = Completely unrelated (e.g., cooking, general world history, celebrities).
 
-1.0 = Highly specific and technical ServiceNow query (e.g., "Business Rules," "GlideSystem," "ACLs").
+1.0 = Highly specific and technical ServiceNow query (e.g., "Business Rules," "GlideSystem," "ACLs") OR conversational/small-talk queries that explicitly mention or ask about ServiceNow.
 
 Output ONLY the decimal number.
 

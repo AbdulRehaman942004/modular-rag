@@ -15,7 +15,7 @@ if ROOT not in sys.path:
     sys.path.insert(0, ROOT)
 
 # Component imports — functions only, no module-level execution
-from LLM import call_groq
+from LLM import call_groq, call_groq_stream
 from query_refinement import confidence_score
 from query_decomposer import query_decomposer
 from tools.llm_response import llm_response
@@ -56,23 +56,24 @@ RESPONSE:
 """
 
 FINAL_PROMPT = """You are "Now Assist", an expert AI assistant for the ServiceNow platform.
+You possess a deep, inherent knowledge of all things ServiceNow.
 
-CONTEXT:
+INFORMATION GATHERED:
 {context}
 
-USER QUERY:
-{query}
-
 INSTRUCTIONS:
-- Answer using ONLY the information in the CONTEXT above.
-- Synthesize multiple sources into one clear, unified response.
-- Be concise, structured, and professional.
+- You must answer the user's latest query factually and confidently, taking into account the conversation history.
+- Use the INFORMATION GATHERED above to form your answer, but ACT AS IF you already knew this information. 
+- Synthesize the details into a clear, unified, and professional response.
 - Use bullet points or numbered lists where helpful.
-- If context is insufficient, say so clearly.
+- If the INFORMATION GATHERED is insufficient to answer the query, say so clearly (e.g., "I don't have enough information to answer that.").
 - Do NOT hallucinate.
 
-RESPONSE:"""
-
+CRITICAL DIRECTIVE: 
+You are speaking directly to an end-user who does not know how you work.
+You MUST NOT use phrases like "Based on the provided context", "According to the search results", "Source 1 says", or "The information gathered indicates".
+NEVER mention the words "context", "search results", "sources", or "provided context". Present everything as your own expert knowledge.
+"""
 
 # ── Internal helpers ──────────────────────────────────────────────────────────
 
@@ -113,28 +114,32 @@ def _run_tool(tool_name: str, q: str, status_cb=None) -> str:
 
 # ── Public API ────────────────────────────────────────────────────────────────
 
-def run_query(query: str, status_cb=None) -> dict:
+def run_query(query: str, chat_history: list = None, status_cb=None) -> dict:
     """Run the full RAG pipeline and return a structured result.
 
     Args:
-        query:     The user's question.
-        status_cb: Optional callable(tool_name: str) called before each tool runs,
-                   so the UI can show live progress.
+        query:        The user's question.
+        chat_history: Optional list of dicts [{"role": "user"/"assistant", "content": "..."}] 
+                      representing the conversation history.
+        status_cb:    Optional callable(tool_name: str) called before each tool runs.
 
     Returns:
         {
-            "answer":      str,
+            "answer":      str (or generator if streaming),
             "tools_used":  list[str],
             "confidence":  float,
             "is_relevant": bool,
-            "sub_queries": list[str],   # one per tool
+            "sub_queries": list[str],
         }
     """
+    if chat_history is None:
+        chat_history = []
+
     # Step 1 — confidence scoring
     confidence = confidence_score(query)
     if confidence < RELEVANCE_THRESHOLD:
         return {
-            "answer": "⚠️ Your question doesn't appear to be related to ServiceNow. Please ask a ServiceNow-related question.",
+            "answer": f"⚠️ Your question doesn't appear to be related to ServiceNow (Confidence: {confidence:.0%}). Please ask a ServiceNow-related question.",
             "tools_used": [],
             "confidence": confidence,
             "is_relevant": False,
@@ -157,14 +162,20 @@ def run_query(query: str, status_cb=None) -> dict:
         sub_queries = [sq for _, sq in pairs]
         tools = [t for t, _ in pairs]
 
-    # Step 4 — final synthesis
+    # Step 4 — final synthesis via messages array
     if status_cb:
         status_cb("synthesizing")
-    final_prompt = FINAL_PROMPT.format(context=context, query=query)
-    answer = call_groq(final_prompt)
+        
+    system_prompt = FINAL_PROMPT.format(context=context)
+    
+    messages = [{"role": "system", "content": system_prompt}]
+    messages.extend(chat_history)
+    messages.append({"role": "user", "content": query})
+    
+    answer_generator = call_groq_stream(messages=messages)
 
     return {
-        "answer": answer,
+        "answer": answer_generator,
         "tools_used": tools,
         "confidence": confidence,
         "is_relevant": True,

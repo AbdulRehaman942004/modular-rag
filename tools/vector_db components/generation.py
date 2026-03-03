@@ -73,19 +73,19 @@ def generate_answer(
     context_text = "\n\n---\n\n".join(context_chunks) if context_chunks else "No relevant context found."
 
     prompt = f"""You are a helpful assistant specialized in ServiceNow. 
-Answer the user's question using ONLY the information provided in the CONTEXT below.
-If the context does not contain enough information, say so clearly without making assumptions.
+Provide a clear, accurate answer to the user's question using the information below.
 
-CONTEXT:
+INFORMATION GATHERED:
 {context_text}
 
 USER QUESTION:
 {user_query}
 
 INSTRUCTIONS:
-- Base your answer strictly on the CONTEXT provided.
+- Base your answer strictly on the INFORMATION GATHERED provided.
 - Be clear, concise, and directly address the question.
-- Do not include information not present in the CONTEXT.
+- Do not include information not present in the INFORMATION GATHERED.
+- CRITICAL: Do NOT mention "context", "search results", or "the provided information" in your answer. Present the information directly and confidently as your own knowledge.
 
 ANSWER:"""
 

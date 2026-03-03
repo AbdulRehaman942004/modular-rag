@@ -14,6 +14,15 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
+st.markdown("""
+<style>
+/* ── Expander (Pipeline route) ── */
+details { margin-top: 10px !important; max-width: 400px !important; }
+details, details > div { background: #10121d !important; border: 1px solid #1e2235 !important; border-radius: 10px !important; }
+details summary { color: #4a5568 !important; font-size: 0.82rem !important; }
+</style>
+""", unsafe_allow_html=True)
+
 # ── SVG icon library (Lucide-style, inline) ────────────────────────────────────
 def icon(path_d, size=16, color="currentColor", stroke_width=1.75, extra_attrs=""):
     return (
@@ -46,156 +55,6 @@ ICONS = {
 
 def svg(name, size=15, color="#94a3b8"):
     return icon(ICONS[name], size=size, color=color)
-
-
-# ── CSS — surgical overrides only, no global resets ───────────────────────────
-st.markdown("""
-<style>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-
-/* ── Global ── */
-html, body {
-    font-family: 'Inter', sans-serif !important;
-}
-
-/* ── Chat messages ── */
-[data-testid="stChatMessage"], [data-testid="stChatMessage"] > div { background: transparent !important; }
-[data-testid="stChatMessageContent"] {
-    background-color: #161928 !important;
-    border: 1px solid #1e2235 !important;
-    border-radius: 12px !important;
-    color: #e2e8f0 !important;
-}
-
-/* ── CHAT INPUT — kill ALL white backgrounds ── */
-/* The bottom fixed bar */
-[data-testid="stBottom"], [data-testid="stBottom"] > div,
-[data-testid="stBottom"] > div > div {
-    background-color: #0c0e17 !important;
-    border-top: 1px solid #1e2235 !important;
-}
-/* The input widget itself */
-[data-testid="stChatInputContainer"], [data-testid="stChatInputContainer"] > div,
-[data-testid="stChatInputContainer"] form, [data-testid="stChatInputContainer"] form > div,
-div[class*="chatInputContainer"], div[class*="chatInput"] {
-    background-color: #161928 !important;
-    border-radius: 12px !important;
-    border: 1px solid #1e2235 !important;
-}
-/* The textarea inside */
-[data-testid="stChatInputContainer"] textarea,
-textarea[data-testid="stChatInputTextArea"] {
-    background-color: #161928 !important;
-    color: #e2e8f0 !important;
-    font-family: 'Inter', sans-serif !important;
-    font-size: 0.9rem !important;
-    border: none !important;
-}
-[data-testid="stChatInputContainer"] textarea::placeholder { color: #3a4460 !important; }
-/* Send button */
-[data-testid="stChatInputContainer"] button,
-button[data-testid="stChatInputSubmitButton"] {
-    background-color: #1e56c5 !important;
-    border-radius: 8px !important;
-    color: #fff !important;
-}
-
-/* ── FILE UPLOADER — kill the white zone ── */
-[data-testid="stFileUploader"],
-[data-testid="stFileUploader"] > section,
-[data-testid="stFileUploader"] > section > div,
-[data-baseweb="file-uploader"],
-[data-baseweb="file-uploader"] > div,
-div[class*="fileUpload"] {
-    background-color: #161928 !important;
-    border: 1px dashed #252b3b !important;
-    border-radius: 8px !important;
-    color: #64748b !important;
-}
-[data-testid="stFileUploader"] label,
-[data-testid="stFileUploader"] small,
-[data-testid="stFileUploader"] p,
-[data-testid="stFileUploader"] span { color: #4a5568 !important; }
-[data-testid="stFileUploader"] button {
-    background: #161928 !important;
-    border: 1px solid #252b3b !important;
-    color: #64748b !important;
-    border-radius: 6px !important;
-}
-
-/* ── Buttons ── */
-.stButton > button {
-    background: #1e3a5f !important;
-    color: #93c5fd !important;
-    border: 1px solid #1e4a80 !important;
-    border-radius: 8px !important;
-    font-family: 'Inter', sans-serif !important;
-    font-weight: 500 !important;
-    font-size: 0.85rem !important;
-    transition: all 0.2s !important;
-}
-.stButton > button:hover {
-    background: #1e56c5 !important;
-    color: #fff !important;
-    border-color: #1e56c5 !important;
-}
-
-/* ── Slider track ── */
-[data-testid="stSlider"] > div { padding: 0.5rem 0 !important; }
-
-/* ── Expander ── */
-details, details > div { background: #10121d !important; border: 1px solid #1e2235 !important; border-radius: 10px !important; }
-details summary { color: #4a5568 !important; font-size: 0.82rem !important; }
-
-/* ── Divider ── */
-hr { border-color: #1e2235 !important; margin: 0.75rem 0 !important; }
-
-/* ── All markdown text ── */
-[data-testid="stMarkdown"] p, [data-testid="stMarkdown"] li { color: #94a3b8 !important; font-size: 0.83rem !important; }
-
-/* ── Scrollbar ── */
-::-webkit-scrollbar { width: 4px; height: 4px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: #1e2235; border-radius: 4px; }
-</style>
-""", unsafe_allow_html=True)
-
-# ── JS patch: override React-injected white backgrounds ───────────────────────
-import streamlit.components.v1 as components
-components.html("""<script>
-(function() {
-    const BG   = '#0c0e17';
-    const CARD = '#161928';
-    const BORD = '#1e2235';
-
-    function patch() {
-        var doc = window.parent.document;
-        // Patch the bottom toolbar wrapper
-        var bottom = doc.querySelector('[data-testid="stBottom"]');
-        if (bottom) {
-            bottom.style.backgroundColor = BG;
-            bottom.style.borderTop = '1px solid ' + BORD;
-            var children = bottom.querySelectorAll('*');
-            for (var i = 0; i < children.length; i++) {
-                var el = children[i];
-                var bg = window.parent.getComputedStyle(el).backgroundColor;
-                if (bg === 'rgb(255, 255, 255)' || bg === 'rgb(240, 242, 246)') {
-                    el.style.backgroundColor = CARD;
-                    el.style.borderColor = BORD;
-                }
-            }
-        }
-    }
-
-    // Run limited times — avoids infinite loops
-    var runs = 0;
-    var timer = setInterval(function() {
-        patch();
-        runs++;
-        if (runs >= 10) clearInterval(timer);
-    }, 500);
-})();
-</script>""", height=0)
 
 
 # ── Session state ─────────────────────────────────────────────────────────────
@@ -520,35 +379,58 @@ else:
 # ── CHAT INPUT ────────────────────────────────────────────────────────────────
 if prompt := st.chat_input("Ask a ServiceNow question…"):
     st.session_state.messages.append({"role": "user", "content": prompt})
+    st.rerun()
 
-    status_text = st.empty()
-    tool_labels = {
-        "vector_db":    "Searching knowledge base",
-        "web_search":   "Searching the web",
-        "llm_response": "Reasoning with LLM",
-        "synthesizing": "Synthesizing final answer",
-    }
+# ── PROCESS PENDING USER MESSAGE ──────────────────────────────────────────────
+if st.session_state.messages and st.session_state.messages[-1]["role"] == "user":
+    query = st.session_state.messages[-1]["content"]
 
-    def status_cb(tool_name):
-        label = tool_labels.get(tool_name, f"Running {tool_name}")
-        m = TOOL_META.get(tool_name, {"color": "#94a3b8", "icon": "activity"})
-        ico = icon(ICONS.get(m["icon"], ICONS["activity"]), 14, m["color"])
-        status_text.markdown(
-            f'<div style="display:flex;align-items:center;gap:10px;padding:10px 14px;'
-            f'background:#161928;border:1px solid #1e2235;border-radius:10px;'
-            f'color:#64748b;font-size:0.83rem;margin:0.5rem 0;">'
-            f'{ico}<span style="color:#94a3b8;">{label}…</span></div>',
-            unsafe_allow_html=True,
-        )
+    # Extract conversation history (last 50 messages, ignoring the current query)
+    # We only keep 'role' and 'content' to save tokens and avoid passing UI metadata
+    raw_history = st.session_state.messages[:-1][-50:]
+    chat_history = [{"role": msg["role"], "content": msg["content"]} for msg in raw_history]
 
-    with st.spinner(""):
-        result = run_query(prompt, status_cb=status_cb)
+    # We use a chat_message block so the spinner appears inside the chat flow
+    with st.chat_message("assistant", avatar=None):
+        status_text = st.empty()
+        
+        tool_labels = {
+            "vector_db":    "Searching knowledge base",
+            "web_search":   "Searching the web",
+            "llm_response": "Reasoning with LLM",
+            "synthesizing": "Synthesizing final answer",
+        }
 
-    status_text.empty()
+        def status_cb(tool_name):
+            label = tool_labels.get(tool_name, f"Running {tool_name}")
+            m = TOOL_META.get(tool_name, {"color": "#94a3b8", "icon": "activity"})
+            ico = icon(ICONS.get(m["icon"], ICONS["activity"]), 14, m["color"])
+            status_text.markdown(
+                f'<div style="display:flex;align-items:center;gap:10px;padding:10px 14px;'
+                f'background:#161928;border:1px solid #1e2235;border-radius:10px;'
+                f'color:#64748b;font-size:0.83rem;margin:0.5rem 0;">'
+                f'{ico}<span style="color:#94a3b8;">{label}…</span></div>',
+                unsafe_allow_html=True,
+            )
+
+        with st.spinner(""):
+            result = run_query(query, chat_history=chat_history, status_cb=status_cb)
+
+        status_text.empty()
+
+        # If answer is a generator (streaming enabled), write it to UI and capture final text
+        if hasattr(result["answer"], "__iter__") and not isinstance(result["answer"], str):
+            final_answer = st.write_stream(result["answer"])
+        else:
+            final_answer = result["answer"]
+            st.markdown(
+                f'<div style="color:#e2e8f0;font-size:0.9rem;line-height:1.6;">{final_answer}</div>',
+                unsafe_allow_html=True,
+            )
 
     st.session_state.messages.append({
         "role": "assistant",
-        "content": result["answer"],
+        "content": final_answer,
         "meta": {
             "tools_used":  result["tools_used"],
             "confidence":  result["confidence"],

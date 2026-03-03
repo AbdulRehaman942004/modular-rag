@@ -102,21 +102,20 @@ def _synthesize(query: str, scraped_results: list[dict]) -> str:
         )
 
     prompt = f"""You are "Now Assist", an expert AI assistant for the ServiceNow platform.
-You have been given live web search results to answer the user's question.
 
 USER QUERY:
 {query}
 
-WEB SEARCH RESULTS:
+INFORMATION GATHERED:
 {sources_text}
 
 INSTRUCTIONS:
-- Answer the query using ONLY the information in the WEB SEARCH RESULTS.
+- Answer the query using ONLY the INFORMATION GATHERED above.
 - Be concise, factual, and well-structured.
 - Use bullet points or numbered lists where appropriate.
-- Where relevant, mention which source the information is from (e.g. "According to Source 1...").
-- If the results do not contain enough information to answer, say so clearly.
-- Do NOT hallucinate or add facts not present in the results.
+- If the available information does not contain enough details to answer, say so clearly (e.g. "I don't have enough information to answer that.").
+- Do NOT hallucinate or add facts not present in the information.
+- CRITICAL: Do NOT mention "search results", "sources", or "provided context" in your answer. Present the information directly and confidently as your own knowledge.
 
 RESPONSE:"""
 
