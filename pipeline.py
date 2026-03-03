@@ -1,0 +1,234 @@
+"""
+pipeline.py  –  Clean, side-effect-free API for the Streamlit frontend.
+
+Call run_query(query) to get a structured result dict. All module-level
+side effects (prints, LLM calls at import time) are avoided here.
+"""
+
+import os
+import sys
+import re
+
+# Project root on sys.path
+ROOT = os.path.dirname(__file__)
+if ROOT not in sys.path:
+    sys.path.insert(0, ROOT)
+
+# Component imports — functions only, no module-level execution
+from LLM import call_groq
+from query_refinement import confidence_score
+from query_decomposer import query_decomposer
+from tools.llm_response import llm_response
+from tools.vector_db import vector_db
+from tools.web_search import web_search
+
+# ── Constants (mirrors router.py) ────────────────────────────────────────────
+RELEVANCE_THRESHOLD = 0.60
+
+ROUTER_PROMPT = """
+System Role
+You are the Router for "Now Assist," an AI assistant for the ServiceNow platform.
+Your sole responsibility is to analyze the incoming user QUERY and determine the
+correct tool(s) required to fulfill the request.
+
+Available Tools
+
+web_search:
+Use when: The query requires Company's information, live data, historical data,
+current trends, statistics, or up-to-date external information.
+
+vector_db:
+Use when: The query asks for theoretical information, definitions, concepts, or
+foundational knowledge specific to ServiceNow modules. The database contains all
+learning materials for basic and advanced ServiceNow understanding.
+
+llm_response:
+Use when: The query asks for specific technical use cases, code debugging, script
+generation, or logical reasoning.
+
+Output Rules
+- Respond with ONLY tool names from: web_search, vector_db, llm_response
+- Separate multiple tools with commas (no spaces): tool1,tool2
+- No explanations, no punctuation other than commas.
+
+QUERY: {query}
+RESPONSE:
+"""
+
+FINAL_PROMPT = """You are "Now Assist", an expert AI assistant for the ServiceNow platform.
+
+CONTEXT:
+{context}
+
+USER QUERY:
+{query}
+
+INSTRUCTIONS:
+- Answer using ONLY the information in the CONTEXT above.
+- Synthesize multiple sources into one clear, unified response.
+- Be concise, structured, and professional.
+- Use bullet points or numbered lists where helpful.
+- If context is insufficient, say so clearly.
+- Do NOT hallucinate.
+
+RESPONSE:"""
+
+
+# ── Internal helpers ──────────────────────────────────────────────────────────
+
+def _route(query: str) -> list[str]:
+    prompt = ROUTER_PROMPT.format(query=query)
+    raw = call_groq(prompt).strip()
+    return re.split(r'\s*,\s*', raw)
+
+
+def _run_tool(tool_name: str, q: str, status_cb=None) -> str:
+    """Run a tool with fallback to llm_response on failure."""
+    if status_cb:
+        status_cb(tool_name)
+    try:
+        if tool_name == "llm_response":
+            result = llm_response(q)
+        elif tool_name == "vector_db":
+            result = vector_db(q)
+        elif tool_name == "web_search":
+            result = web_search(q)
+        else:
+            result = ""
+
+        if not result or result.strip().startswith("["):
+            raise ValueError("unusable result")
+        return result
+
+    except Exception as e:
+        print(f"[pipeline] '{tool_name}' failed: {e} — falling back to llm_response")
+        try:
+            fallback = llm_response(q)
+            if fallback:
+                return f"[Fallback from {tool_name}]\n{fallback}"
+        except Exception:
+            pass
+        return "Unable to retrieve information. Please try again."
+
+
+# ── Public API ────────────────────────────────────────────────────────────────
+
+def run_query(query: str, status_cb=None) -> dict:
+    """Run the full RAG pipeline and return a structured result.
+
+    Args:
+        query:     The user's question.
+        status_cb: Optional callable(tool_name: str) called before each tool runs,
+                   so the UI can show live progress.
+
+    Returns:
+        {
+            "answer":      str,
+            "tools_used":  list[str],
+            "confidence":  float,
+            "is_relevant": bool,
+            "sub_queries": list[str],   # one per tool
+        }
+    """
+    # Step 1 — confidence scoring
+    confidence = confidence_score(query)
+    if confidence < RELEVANCE_THRESHOLD:
+        return {
+            "answer": "⚠️ Your question doesn't appear to be related to ServiceNow. Please ask a ServiceNow-related question.",
+            "tools_used": [],
+            "confidence": confidence,
+            "is_relevant": False,
+            "sub_queries": [],
+        }
+
+    # Step 2 — routing
+    tools = _route(query)
+
+    # Step 3 — decompose (if multi-tool) and run
+    if len(tools) == 1:
+        sub_queries = [query]
+        context = _run_tool(tools[0], query, status_cb)
+    else:
+        sub_queries = query_decomposer(query, tools)
+        # Guard length mismatch
+        pairs = list(zip(tools, sub_queries))
+        contexts = [_run_tool(tool, sq, status_cb) for tool, sq in pairs]
+        context = "\n\n".join(contexts)
+        sub_queries = [sq for _, sq in pairs]
+        tools = [t for t, _ in pairs]
+
+    # Step 4 — final synthesis
+    if status_cb:
+        status_cb("synthesizing")
+    final_prompt = FINAL_PROMPT.format(context=context, query=query)
+    answer = call_groq(final_prompt)
+
+    return {
+        "answer": answer,
+        "tools_used": tools,
+        "confidence": confidence,
+        "is_relevant": True,
+        "sub_queries": sub_queries,
+    }
+
+
+def get_collection_info() -> dict:
+    """Return info about the current ChromaDB knowledge base."""
+    try:
+        import chromadb
+        db_path = os.path.join(ROOT, "chromadb_data")
+        client = chromadb.PersistentClient(path=db_path)
+        col = client.get_collection(name="servicenow_knowledge_base")
+        return {"exists": True, "count": col.count()}
+    except Exception:
+        return {"exists": False, "count": 0}
+
+
+def ingest_pdfs(pdf_files) -> dict:
+    """Save uploaded Streamlit file objects to pdfs/ and run extraction + ingestion.
+
+    Args:
+        pdf_files: list of Streamlit UploadedFile objects.
+
+    Returns:
+        {"success": bool, "chunks": int, "message": str}
+    """
+    import json
+    pdf_dir = os.path.join(ROOT, "pdfs")
+    os.makedirs(pdf_dir, exist_ok=True)
+
+    saved = []
+    for f in pdf_files:
+        dest = os.path.join(pdf_dir, f.name)
+        with open(dest, "wb") as out:
+            out.write(f.read())
+        saved.append(dest)
+
+    if not saved:
+        return {"success": False, "chunks": 0, "message": "No PDFs to ingest."}
+
+    # Run extraction
+    components = os.path.join(ROOT, "tools", "vector_db components")
+    if components not in sys.path:
+        sys.path.insert(0, components)
+
+    from extraction import extract_pdfs_to_chunks
+    from ingestion import ingest_chunks
+
+    chunks = extract_pdfs_to_chunks(saved)
+    if not chunks:
+        return {"success": False, "chunks": 0, "message": "Could not extract text from PDFs."}
+
+    # Save chunks.json
+    chunks_file = os.path.join(pdf_dir, "chunks.json")
+    with open(chunks_file, "w", encoding="utf-8") as f:
+        json.dump(chunks, f, ensure_ascii=False)
+
+    # Ingest
+    ingest_chunks(chunks, reset=True)
+
+    return {
+        "success": True,
+        "chunks": len(chunks),
+        "message": f"✅ Ingested {len(chunks):,} chunks from {len(saved)} PDF(s).",
+    }
