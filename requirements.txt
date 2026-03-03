@@ -2,7 +2,7 @@ streamlit
 openai
 chromadb
 python-dotenv
-duckduckgo-search
+ddgs
 beautifulsoup4
 requests
 PyPDF2
