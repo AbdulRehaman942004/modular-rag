@@ -177,7 +177,7 @@ def run_query(query: str, chat_history: list = None, n_results: int = 10, status
     messages.extend(chat_history)
     messages.append({"role": "user", "content": query})
     
-    answer_generator = call_chatgpt_stream(messages=messages)
+    answer_generator = call_groq_stream(messages=messages)
 
     return {
         "answer": answer_generator,
