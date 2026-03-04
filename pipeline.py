@@ -62,6 +62,7 @@ INFORMATION GATHERED:
 {context}
 
 INSTRUCTIONS:
+- Keep the token limit of the response under 1024 tokens.
 - You must answer the user's latest query factually and confidently, taking into account the conversation history.
 - Use the INFORMATION GATHERED above to form your answer, but ACT AS IF you already knew this information. 
 - CRITICAL: Output your answer directly in standard Markdown.
