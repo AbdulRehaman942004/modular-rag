@@ -15,7 +15,7 @@ if ROOT not in sys.path:
     sys.path.insert(0, ROOT)
 
 # Component imports — functions only, no module-level execution
-from LLM import call_groq, call_groq_stream
+from LLM import call_groq, call_groq_stream, call_chatgpt_stream
 from query_refinement import confidence_score
 from query_decomposer import query_decomposer
 from tools.llm_response import llm_response
@@ -70,6 +70,7 @@ INSTRUCTIONS:
 - Do NOT wrap your entire response or headings in quotation marks or bold asterisks (e.g. use `# Heading` NOT `**# Heading**` or `# **Heading**`).
 - Synthesize the details into a highly detailed, comprehensive, and professional response.
 - Use headings, bullet points, numbered lists, and bold text extensively to organize the information and provide a structured output.
+- EXCEPTION TO STRUCTURE: If the user explicitly asks for a specific format or constraint (e.g., "summarize in one paragraph", "make it short", "only give me the code"), you MUST prioritize their request and ignore the requirement to be "highly detailed" or use headings/bullets.
 - If the INFORMATION GATHERED is insufficient to answer the query, say so clearly (e.g., "I don't have enough information to answer that.").
 - Do NOT hallucinate.
 
@@ -176,7 +177,7 @@ def run_query(query: str, chat_history: list = None, n_results: int = 10, status
     messages.extend(chat_history)
     messages.append({"role": "user", "content": query})
     
-    answer_generator = call_groq_stream(messages=messages)
+    answer_generator = call_chatgpt_stream(messages=messages)
 
     return {
         "answer": answer_generator,
