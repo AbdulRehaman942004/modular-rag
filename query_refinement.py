@@ -4,23 +4,29 @@ from LLM import call_groq
 query = "What is ITSM? and tell me if this code is syntactically correct: var gr = new GlideRecord('incident'); gr.query(); Also tell me who is the founder of service now?"
 
 
-def confidence_score(query: str) -> float:
+def confidence_score(query: str, chat_history: list = None) -> float:
     """Return a 0.0–1.0 score indicating how relevant the query is to ServiceNow."""
+
+    history_str = ""
+    if chat_history:
+        history_str = "\n".join([f"{msg['role'].capitalize()}: {msg['content']}" for msg in chat_history[-3:]])
+    else:
+        history_str = "No prior conversation context."
 
     prompt = f"""
 System Role:
 You are a Relevance Evaluator for 'Now Assist', an AI assistant dedicated to the ServiceNow platform. Your goal is to filter queries based on their relevance to ServiceNow, ServiceNow concepts, ServiceNow modules (ITSM, HRSD, CSM, etc.), scripting (GlideRecord, Jelly), or platform administration.
 
 Task:
-Analyze the incoming user query.
+Analyze the incoming user query IN THE CONTEXT of the recent conversation history.
 
-Determine if the query pertains to the ServiceNow ecosystem.
+Determine if the query pertains to the ServiceNow ecosystem, OR if it is a valid conversational continuation/follow-up to a previous ServiceNow topic.
 
 Assign a confidence score between 0.0 and 1.0:
 
-0.0 = Completely unrelated (e.g., cooking, general world history, celebrities).
+0.0 = Completely unrelated (e.g., cooking, general world history, celebrities) and has nothing to do with recent context.
 
-1.0 = Highly specific and technical ServiceNow query (e.g., "Business Rules," "GlideSystem," "ACLs"), conversational/small-talk queries that explicitly mention ServiceNow, standard AI Assistant greetings (e.g., "Hello", "Hi", "Who are you?", "How are you?"), OR conversational follow-up commands (e.g., "Summarize it", "Explain more", "Make it shorter").
+1.0 = Highly specific and technical ServiceNow query (e.g., "Business Rules," "GlideSystem," "ACLs"), standard AI Assistant greetings (e.g., "Hello", "Hi"), OR any conversational follow-up commands/questions that relate back to the recent ServiceNow chat history (e.g., "Summarize it", "Explain more", "Make it shorter").
 
 Output ONLY the decimal number.
 
@@ -48,6 +54,9 @@ Output: 0.98
 
 Input: "Who is the CEO of Microsoft?"
 Output: 0.10
+
+RECENT CONVERSATION CONTEXT:
+{history_str}
 
 USER INPUT: {query}
 

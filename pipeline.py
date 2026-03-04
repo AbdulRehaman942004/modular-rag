@@ -141,7 +141,7 @@ def run_query(query: str, chat_history: list = None, n_results: int = 10, status
         chat_history = []
 
     # Step 1 — confidence scoring
-    confidence = confidence_score(query)
+    confidence = confidence_score(query, chat_history)
     if confidence < RELEVANCE_THRESHOLD:
         return {
             "answer": f"⚠️ Your question doesn't appear to be related to ServiceNow (Confidence: {confidence:.0%}). Please ask a ServiceNow-related question.",
